@@ -82,6 +82,7 @@ The script will:
     ├── backend/        # Go API (Golang)
     ├── frontend/       # React App (TypeScript)
     └── docker-compose.yml
+```
 
 ## 🛡️ Security & Best Practices
 
@@ -102,14 +103,3 @@ The script will:
 ---
 *Created for educational and portfolio demonstration purposes.*
 
-## Pasos para actualizarlo:
-* Abre el archivo: nano README.md
-
-* Pega este texto al final.
-
-* Guarda (Ctrl+O) y sal (Ctrl+X).
-
-* Sube los cambios:
-git add README.md
-git commit -m "docs: complete README sections"
-git push
