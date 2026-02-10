@@ -1,0 +1,16 @@
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.backup
+*.tfvars
+.terraform.lock.hcl
+
+# Ansible
+*.retry
+
+# Sistema / IDE
+.DS_Store
+.vscode/
+
+# Logs
+*.log

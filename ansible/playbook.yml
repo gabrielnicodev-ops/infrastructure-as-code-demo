@@ -1,0 +1,71 @@
+---
+- name: Despliegue de App Cloud Pulse (Go + React)
+  hosts: servidores
+  become: true
+  vars:
+    ansible_env:
+      DEBIAN_FRONTEND: noninteractive
+
+  tasks:
+    - name: Esperar conexión SSH
+      wait_for_connection:
+        timeout: 300
+
+    # --- INSTALACIÓN DE DOCKER (Igual que antes) ---
+    - name: Actualizar repositorios
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Instalar dependencias
+      apt:
+        name: [ca-certificates, curl, gnupg, lsb-release, git] # Agregamos git
+        state: present
+
+    - name: Crear directorio de llaves
+      file:
+        path: /etc/apt/keyrings
+        state: directory
+        mode: '0755'
+
+    - name: Bajar llave GPG de Docker
+      shell: |
+        curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg --yes
+
+    - name: Agregar repo de Docker
+      shell: |
+        echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+    - name: Instalar Docker Engine
+      apt:
+        update_cache: yes
+        name: [docker-ce, docker-ce-cli, containerd.io, docker-compose-plugin]
+        state: present
+
+    - name: Agregar usuario ubuntu a docker
+      user:
+        name: ubuntu
+        groups: docker
+        append: yes
+
+    # --- DESPLIEGUE DE LA APP ---
+    
+    - name: Crear directorio de la app
+      file:
+        path: /home/ubuntu/cloud-pulse
+        state: directory
+        owner: ubuntu
+        group: ubuntu
+
+    - name: Copiar código de la app (Backend y Frontend)
+      copy:
+        src: ../app/
+        dest: /home/ubuntu/cloud-pulse/
+        owner: ubuntu
+        group: ubuntu
+        mode: '0755'
+
+    - name: Levantar Stack con Docker Compose
+      shell: docker compose up -d --build
+      args:
+        chdir: /home/ubuntu/cloud-pulse
